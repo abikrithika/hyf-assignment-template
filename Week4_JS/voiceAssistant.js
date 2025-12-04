@@ -1,188 +1,150 @@
-const userName = [];
-const todos = [];
+const user = {
+  name: "",
+  todos: []
+};
 
 function getReply(command) {
-  const lower = command.toLowerCase();
+  // Validate input
+  if (typeof command !== "string") return "Command must be a string.";
+  if (!command.trim()) return "Empty commands are no bueno!";
 
-  //My name is
-  if (lower.includes("my name is")) {
-    const nameStart = lower.indexOf("my name is") + "my name is".length;
+  const lower = command.toLowerCase().trim();
 
-    const extractedName = lower.slice(nameStart).trim();
+  // ===========================
+  // My name is ...
+  // ===========================
+  if (lower.startsWith("my name is")) {
+    const name = command.slice("my name is".length).trim();
 
-    if (!userName.includes(extractedName)) {
-      userName.push(extractedName);
-      return `Nice to meet you ${extractedName}`;
-    } else {
-      return `You already introduce yourself as ${extractedName}`;
+    if (!name) return "I didn't catch your name.";
+
+    if (user.name && user.name === name.toLowerCase()) {
+      return `You already introduced yourself as ${name}`;
     }
-  }
-  //What is my name
-  if (lower.includes("what is my name")) {
-    if (userName.length === 0) {
-      return `You haven’t told me your name yet`;
-    } else {
-      const userNameLastUsed = userName[userName.length - 1];
 
-      return `Your name is ${userNameLastUsed}`;
-    }
+    user.name = name.toLowerCase();
+    return `Nice to meet you ${name}`;
   }
 
-   //todo
-  if (lower.includes("add") && lower.includes("to my todo")) {
-    const itemStart = lower.indexOf("add") + "add".length;
-    const itemEnd = lower.indexOf("to my todo");
-    const extractValue = lower.slice(itemStart, itemEnd).trim();
-    todos.push(extractValue);
-
-    return `${extractValue} added to your todo`;
+  // ===========================
+  // What is my name?
+  // ===========================
+  if (lower === "what is my name?" || lower === "what is my name") {
+    return user.name
+      ? `Your name is ${user.name}`
+      : "You haven’t told me your name yet.";
   }
 
-   //Removing
-  if (lower.includes("remove") && lower.includes("from my todo")) {
-    const itemRemoveStart = lower.indexOf("remove") + "remove".length;
-    const itemRemoveEnd = lower.indexOf("from my todo");
-    const extractRemoveValue = lower
-      .slice(itemRemoveStart, itemRemoveEnd)
+  // ===========================
+  // Add to my todo
+  // ===========================
+  if (lower.startsWith("add") && lower.includes("to my todo")) {
+    const item = command
+      .slice(command.toLowerCase().indexOf("add") + 3, command.toLowerCase().indexOf("to my todo"))
       .trim();
 
-    const findIndexOfRemoveValue = todos.indexOf(extractRemoveValue);
+    if (!item) return "I can't add an empty todo.";
 
-    if (findIndexOfRemoveValue === -1) {
-      return `Item not found`;
-    } else {
-      const removedValue = todos.splice(findIndexOfRemoveValue, 1);
-      return `Removed ${extractRemoveValue} from your todo`;
+    user.todos.push(item);
+
+    return `${item} added to your todo.`;
+  }
+
+  // ===========================
+  // Remove from my todo
+  // ===========================
+  if (lower.startsWith("remove") && lower.includes("from my todo")) {
+    const item = command
+      .slice(command.toLowerCase().indexOf("remove") + 6, command.toLowerCase().indexOf("from my todo"))
+      .trim();
+
+    const index = user.todos.indexOf(item);
+
+    if (index === -1) return "Item not found.";
+
+    user.todos.splice(index, 1);
+    return `Removed ${item} from your todo.`;
+  }
+
+  // ===========================
+  // What is on my todo?
+  // ===========================
+  if (lower === "what is on my todo?" || lower === "what is on my todo") {
+    return `You have ${user.todos.length} todos: ${user.todos.join(", ")}`;
+  }
+
+  // ===========================
+  // What day is it today?
+  // Cleaner method using toLocaleDateString
+  // ===========================
+  if (lower === "what day is it today?" || lower === "what day is it today") {
+    return new Date().toLocaleDateString("en-GB", {
+      day: "numeric",
+      month: "long",
+      year: "numeric"
+    });
+  }
+
+  // ===========================
+  // Simple Math (using switch)
+  // ===========================
+  if (lower.startsWith("what is ")) {
+    const operation = lower.replace("what is ", "").trim();
+    const operators = ["+", "-", "*", "/", "%"];
+
+    let operator = operators.find(op => operation.includes(op));
+    if (!operator) return "Invalid math command.";
+
+    const parts = operation.split(operator);
+    if (parts.length < 2) return "Invalid math command.";
+
+    const number1 = Number(parts[0].trim());
+    const number2 = Number(parts[1].trim());
+
+    if (isNaN(number1)) return "First number is invalid.";
+    if (isNaN(number2)) return "Second number is invalid.";
+
+    switch (operator) {
+      case "+":
+        return number1 + number2;
+      case "-":
+        return number1 - number2;
+      case "*":
+        return number1 * number2;
+      case "/":
+        return number2 !== 0 ? number1 / number2 : "Cannot divide by zero.";
+      case "%":
+        return number2 !== 0 ? number1 % number2 : "Cannot get remainder when divisor is zero.";
     }
   }
 
-  //what is on my todo?
-  if (lower.includes("what is on my todo")) {
-    return `you have ${todos.length} todos - ${todos}`;
-  }
- //What day is it today
-  if (lower.includes("what day is it today")) {
-    const monthNames = [
-      "January",
-      "February",
-      "March",
-      "April",
-      "May",
-      "June",
-      "July",
-      "August",
-      "September",
-      "October",
-      "November",
-      "December",
-    ];
-    const todayDate = new Date();
-    const dateValue = todayDate.getDate();
-    const monthValue = todayDate.getMonth();
-    const yearValue = todayDate.getFullYear();
-    return `${dateValue}. of ${monthNames[monthValue]} ${yearValue}`;
-  }
+  // ===========================
+  // Set a timer
+  // ===========================
+  if (lower.startsWith("set a timer for")) {
+    // handles both minute/minutes
+    const minText = lower.includes("minutes")
+      ? "minutes"
+      : lower.includes("minute")
+      ? "minute"
+      : null;
 
-  //Simple Math
-  if (lower.includes("what is ")) {
-    const startValue = lower.indexOf("is") + "is".length;
+    if (!minText) return "Invalid timer format.";
 
-    const sliceValue = lower.slice(startValue).trim();
+    const timeStr = lower.replace("set a timer for", "").replace(minText, "").trim();
+    const minutes = Number(timeStr);
 
-    let operator;
-    if (sliceValue.includes("+")) {
-      operator = "+";
-    } else if (sliceValue.includes("-")) {
-      operator = "-";
-    } else if (sliceValue.includes("*")) {
-      operator = "*";
-    } else if (sliceValue.includes("/")) {
-      operator = "/";
-    } else if (sliceValue.includes("%")) {
-      operator = "%";
-    }
-    const numbers = sliceValue.split(operator);
-    if (numbers.length < 2) {
-      return "Invalid math command";
-    }
-    const number1 = Number(numbers[0].trim());
-    const number2 = Number(numbers[1].trim());
-    if (isNaN(number1) || isNaN(number2)) {
-      return "Invalid numbers";
-    }
-
-    if (operator === "+") {
-      return number1 + number2;
-    } else if (operator === "-") {
-      return number1 - number2;
-    } else if (operator === "*") {
-      return number1 * number2;
-    } else if (operator === "/") {
-      return number1 / number2;
-    } else if (operator === "%") {
-      return number1 % number2;
-    }
-  }
-  //Set a timer
-  if (lower.includes("set a timer for")) {
-    const startValue =
-      lower.indexOf("set a timer for") + "set a timer for".length;
-    const endValue = lower.indexOf("minutes");
-    const extractMinutesValue = lower.slice(startValue, endValue).trim();
-
-    const minutes = Number(extractMinutesValue);
-    if (isNaN(minutes)) {
-      return "Invalid timer value";
-    }
-    const milliSeconds = minutes * 60 * 1000;
+    if (isNaN(minutes)) return "Invalid timer value.";
 
     setTimeout(() => {
-      console.log("Timer done");
-    }, milliSeconds);
-    return `Timer set for ${minutes} minutes`;
+      console.log("Timer done!");
+    }, minutes * 60 * 1000);
+
+    return `Timer set for ${minutes} minute${minutes > 1 ? "s" : ""}.`;
   }
+
+  // No match
+  return "I don't understand that command.";
 }
 
-//My name is - Check Output
 
-console.log(getReply("My name is Benjamin"));
-console.log(getReply("My name is Benjamin"));
-console.log(getReply("My name is Abi"));
-console.log(getReply("My name is Abi"));
-console.log(getReply("My name is Gayu"));
-console.log(getReply("My name is Benjamin"));
-
-//What is my name - Check Output
-
-console.log(getReply("What is my name?"));
-
-//Add to Todo - Check Output
-
-console.log(getReply("Add fishing to my todo"));
-
-console.log(getReply("Add singing to my todo"));
-
-console.log(getReply("Add singing in the shower to my todo"));
-
-//Remove from Todo - Check Output
-
-console.log(getReply("Remove fishing from my todo"));
-
-//Whats on my todo - Check Output
-console.log(getReply("What is on my todo?"));
-
-//What day is today - Check Output
-console.log(getReply("What day is it today?"));
-
-//Simple Math calculation - Check Output
-console.log(getReply("What is 3 + 3"));
-console.log(getReply("What is 3 - 3"));
-console.log(getReply("What is 3 * 3"));
-console.log(getReply("What is 4 * 12"));
-console.log(getReply("What is 6 / 3"));
-console.log(getReply("What is 4 % 3"));
-
-//Set Timer - Check Output
-console.log(getReply("set a timer for 4 minutes"));
-
-console.log(getReply("set a timer for 6 minutes"));
