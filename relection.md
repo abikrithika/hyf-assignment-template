@@ -1,6 +1,6 @@
 Reflection
 
-1. Identify and share 3 new things you learned from AI in the above task.
+1. 3 new things you learned from AI in the above task.
 From using GitHub Copilot, I learned:
 1. How to write semantic and meaningful class names such as `section-main` and `section-intro` to keep code organized.
 2. How to align sections in CSS using `text-align`, Flexbox, and Grid layouts.
@@ -74,4 +74,5 @@ instead of just calling getRandomColor().
 The function only returns a random color value, but by assigning it to document.body.style.backgroundColor, we actually apply that color to the webpage.
 
 From this interaction, I understood how functions return values, how to use DOM manipulation with document.body, and how event listeners work to make a webpage interactive.
+
 This gave me more confidence in reading and understanding JavaScript, not just copying it.
