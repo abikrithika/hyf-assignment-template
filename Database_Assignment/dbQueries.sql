@@ -21,3 +21,6 @@ select title from task where title LIKE '%database%' OR description LIKE '%datab
 
 --Get the title and status (as text) of all tasks.--
 select task.title, status.name from task JOIN status ON task.status_id=status.id
+
+--Get the name of each status, along with a count of how many tasks have that status.--
+select status.name, COUNT(task.id) from status JOIN task ON status.id=task.status_id GROUP BY status.name
