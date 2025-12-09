@@ -12,3 +12,8 @@ select title from task where status_id IN(1,2)
 
 --Get all the tasks, sorted with the most recently created first.--
 select title from task ORDER BY created DESC
+
+--Get the single most recently created task.--
+select title from task ORDER BY created DESC LIMIT 1
+
+
