@@ -17,5 +17,7 @@ select title from task ORDER BY created DESC
 select title from task ORDER BY created DESC LIMIT 1
 
 --Get the title and due date of all tasks where the title or description contains database.--
-SELECT title FROM task WHERE title LIKE '%database%' OR description LIKE '%database%'
+select title from task where title LIKE '%database%' OR description LIKE '%database%'
 
+--Get the title and status (as text) of all tasks.--
+select task.title, status.name from task JOIN status ON task.status_id=status.id
