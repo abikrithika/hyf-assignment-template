@@ -16,4 +16,6 @@ select title from task ORDER BY created DESC
 --Get the single most recently created task.--
 select title from task ORDER BY created DESC LIMIT 1
 
+--Get the title and due date of all tasks where the title or description contains database.--
+SELECT title FROM task WHERE title LIKE '%database%' OR description LIKE '%database%'
 
