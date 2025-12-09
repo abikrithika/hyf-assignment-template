@@ -6,3 +6,6 @@ select COUNT(*) from task where due_date IS NULL
 
 --Find all the tasks that are marked as done.--
 select title from task where status_id=3
+
+--Find all the tasks that are not marked as done.--
+select title from task where status_id IN(1,2)
