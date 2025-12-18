@@ -1,0 +1,18 @@
+http://localhost:4002/users/id
+
+http://localhost:4002/latest-users
+
+http://localhost:4002/home
+
+
+The below are dog API tested in Postman
+
+https://dog.ceo/api/breeds/list/all
+
+https://dog.ceo/api/breeds/image/random/5
+
+https://dog.ceo/api/breed/beagle/images/random/3
+
+https://dog.ceo/api/breed/poodle/list
+
+https://dog.ceo/api/breed/poodle/toy/images
