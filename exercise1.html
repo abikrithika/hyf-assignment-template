@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale= 1.0">
+  <title>Dog of the day</title>
+  <link rel="stylesheet" href="style.css">
+
+</head>
+<body>
+  <h1>Dog of the day</h1>
+  <div class="random-name" id="random-name"></div>
+  <div class="dog-container">
+  <div class="dog-card">
+    <img src="dog1.jpg" alt="lucy" width="200">
+    <p>Lucy</p>
+  </div>
+  <div class="dog-card">
+    <img src="dog2.jpeg" alt="lucky" width="200">
+    <p>Lucky</p>
+  </div>
+  <div class="dog-card">
+    <img src="dog3.jpeg" alt="rex" width="200">
+    <p>Rex</p>
+  </div>
+  </div>
+  <div class="divButton">
+    <button id="input">Input</button>
+    <br>
+    <button id="add-dog-btn">Add new dog</button>
+  <form id="add-dog-form">
+  <input type="text" id="dog-name" placeholder="Enter Dog Name" required>
+  <input type="text" id="dog-img" placeholder="Image URL" required>
+  <button type="submit">Add</button>
+</form>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
