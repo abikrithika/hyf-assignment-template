@@ -1,6 +1,10 @@
 Carrot
 Cucumber
+<<<<<<< HEAD
 Tomatoes
+=======
+Cauliflower
+>>>>>>> collaboration-via-github-week1/Abirame
 Onion
 Yam
 Cabbage
