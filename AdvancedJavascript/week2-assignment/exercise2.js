@@ -29,6 +29,28 @@ function validateOrder(order, callback) {
   }, 200);
 }
 
+function calculateTotal(order, callback) {
+  setTimeout(() => {
+    let total = 0;
+
+    order.items.forEach((item) => {
+      const tea = teas.find((t) => t.id === item.teaId);
+
+      if (tea) {
+        total += tea.pricePerGram * item.grams;
+      }
+    });
+
+    callback({
+      orderId: order.id,
+      total: total,
+    });
+  }, 300);
+}
+
 validateOrder(order, (result) => {
   console.log("Validation result:", result);
+});
+calculateTotal(order, (result) => {
+  console.log("Total:", result);
 });
