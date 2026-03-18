@@ -48,9 +48,33 @@ function calculateTotal(order, callback) {
   }, 300);
 }
 
+function checkStock(order, callback) {
+  setTimeout(() => {
+    const shortages = [];
+
+    order.items.forEach((item) => {
+      const tea = teas.find((t) => t.id === item.teaId);
+
+      if (tea && tea.stockCount < item.grams) {
+        shortages.push(`Not enough stock for tea ${tea.name}`);
+      }
+    });
+
+    callback({
+      orderId: order.id,
+      inStock: shortages.length === 0,
+      shortages: shortages,
+    });
+  }, 400);
+}
+
 validateOrder(order, (result) => {
   console.log("Validation result:", result);
 });
 calculateTotal(order, (result) => {
   console.log("Total:", result);
+});
+
+checkStock(order, (result) => {
+  console.log("Stock check:", result);
 });
