@@ -1,8 +1,6 @@
 const API_BASE = "https://tea-api-787553294298.europe-west1.run.app/api";
 
 async function getTeaDetails(id) {
-  // Fetch tea and inventory in PARALLEL using Promise.all
-
   const [teaResponse, inventoryResponse] = await Promise.all([
     fetch(`${API_BASE}/teas/${id}`).then((response) => {
       return response.json();
@@ -12,11 +10,8 @@ async function getTeaDetails(id) {
     }),
   ]);
   return { ...teaResponse, stock: inventoryResponse.stockCount };
-
-  // Return combined object: { ...tea, stock: number }
 }
 
-// Test it:
 getTeaDetails(2).then((tea) => {
   console.log(`${tea.name} (${tea.origin})`);
   console.log(`Price: ${tea.pricePerGram} DKK/gram`);
