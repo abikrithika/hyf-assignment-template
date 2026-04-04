@@ -1,7 +1,7 @@
 import { teas } from "./teas.js";
 import { Tea } from "./exercise1.js";
 
-class OrderItem {
+export class OrderItem {
   constructor(tea, grams) {
     if (!tea || typeof tea.priceFor !== "function") {
       throw new Error("tea must be a Tea instance");
@@ -24,7 +24,7 @@ class OrderItem {
   }
 }
 
-class Order {
+export class Order {
   constructor() {
     this.items = [];
     this.status = "pending";
