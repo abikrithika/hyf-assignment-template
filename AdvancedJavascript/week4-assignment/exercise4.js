@@ -2,7 +2,7 @@ import { teas } from "./teas.js";
 import { Tea } from "./exercise1.js";
 import { Order, OrderItem } from "./exercise2.js";
 
-class Customer {
+export class Customer {
   constructor(name, email) {
     if (!name || typeof name !== "string") {
       throw new Error("Name is required");
