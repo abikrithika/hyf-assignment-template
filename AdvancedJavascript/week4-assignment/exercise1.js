@@ -1,6 +1,6 @@
 import { teas } from "./teas.js";
 
-class Tea {
+export class Tea {
   constructor(name, type, origin, pricePerGram, organic) {
     if (!name || typeof name !== "string") {
       throw new Error("Name is required");
