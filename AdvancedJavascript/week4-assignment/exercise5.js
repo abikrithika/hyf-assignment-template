@@ -19,7 +19,6 @@ class TeaShop {
     this.catalog = new TeaCatalog(teasData);
     this.inventory = new Inventory();
 
-    // initialize inventory
     teasData.forEach((teaObj) => {
       const tea = Tea.fromObject(teaObj);
       this.inventory.add(tea, teaObj.stockCount);
@@ -37,7 +36,6 @@ class TeaShop {
   createOrder(customer, items) {
     const order = new Order();
 
-    // 1. Validate EVERYTHING first (no mutations here)
     const validatedItems = items.map(({ teaName, grams }) => {
       const tea = this.catalog.findTea(teaName);
 
@@ -56,7 +54,6 @@ class TeaShop {
       return { tea, teaName, grams };
     });
 
-    // 2. Apply changes only AFTER validation succeeds
     validatedItems.forEach(({ tea, teaName, grams }) => {
       const orderItem = new OrderItem(tea, grams);
       order.addItem(orderItem);
@@ -64,7 +61,6 @@ class TeaShop {
       this.inventory.sell(teaName, grams);
     });
 
-    // 3. Save order to customer
     customer.placeOrder(order);
 
     return order;
@@ -94,10 +90,6 @@ class TeaShop {
   }
 }
 
-// ----------------------
-// TESTING
-// ----------------------
-
 const shop = new TeaShop(teas);
 
 const alex = shop.registerCustomer("Alex", "alex@example.com");
@@ -121,10 +113,6 @@ try {
 } catch (err) {
   console.log("Order 2 failed:", err.message);
 }
-
-// ----------------------
-// REPORT
-// ----------------------
 
 const report = shop.getReport();
 
