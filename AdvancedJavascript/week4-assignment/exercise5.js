@@ -19,6 +19,7 @@ class TeaShop {
     this.catalog = new TeaCatalog(teasData);
     this.inventory = new Inventory();
 
+    // initialize inventory
     teasData.forEach((teaObj) => {
       const tea = Tea.fromObject(teaObj);
       this.inventory.add(tea, teaObj.stockCount);
@@ -36,32 +37,52 @@ class TeaShop {
   createOrder(customer, items) {
     const order = new Order();
 
-    items.forEach(({ teaName, grams }) => {
+    // 1. Validate EVERYTHING first (no mutations here)
+    const validatedItems = items.map(({ teaName, grams }) => {
       const tea = this.catalog.findTea(teaName);
-      if (!tea) throw new Error(`Tea not found: ${teaName}`);
-      if (this.inventory.getStock(teaName) < grams)
-        throw new Error(`Insufficient stock for ${teaName}`);
 
+      if (!tea) {
+        throw new Error(`Tea not found: ${teaName}`);
+      }
+
+      const availableStock = this.inventory.getStock(teaName);
+
+      if (availableStock < grams) {
+        throw new Error(
+          `Insufficient stock for ${teaName}. Available: ${availableStock}, Requested: ${grams}`,
+        );
+      }
+
+      return { tea, teaName, grams };
+    });
+
+    // 2. Apply changes only AFTER validation succeeds
+    validatedItems.forEach(({ tea, teaName, grams }) => {
       const orderItem = new OrderItem(tea, grams);
       order.addItem(orderItem);
 
       this.inventory.sell(teaName, grams);
     });
 
+    // 3. Save order to customer
     customer.placeOrder(order);
+
     return order;
   }
 
   getReport() {
     const totalCustomers = this.customers.length;
+
     const totalOrders = this.customers.reduce(
       (sum, customer) => sum + customer.orders.length,
       0,
     );
+
     const totalRevenue = this.customers.reduce(
       (sum, customer) => sum + customer.totalSpent(),
       0,
     );
+
     const lowStockItems = this.inventory.getLowStock(50);
 
     return {
@@ -73,25 +94,45 @@ class TeaShop {
   }
 }
 
+// ----------------------
+// TESTING
+// ----------------------
+
 const shop = new TeaShop(teas);
 
 const alex = shop.registerCustomer("Alex", "alex@example.com");
 const maria = shop.registerCustomer("Maria", "maria@example.com");
 
-const order1 = shop.createOrder(alex, [
-  { teaName: "Sencha", grams: 100 },
-  { teaName: "Matcha", grams: 50 },
-]);
-console.log("Alex's Order:\n", order1.getSummary());
+try {
+  const order1 = shop.createOrder(alex, [
+    { teaName: "Sencha", grams: 100 },
+    { teaName: "Matcha", grams: 50 },
+  ]);
+  console.log("Alex's Order:\n", order1.getSummary());
+} catch (err) {
+  console.log("Order 1 failed:", err.message);
+}
 
-const order2 = shop.createOrder(maria, [{ teaName: "Earl Grey", grams: 200 }]);
-console.log("Maria's Order:\n", order2.getSummary());
+try {
+  const order2 = shop.createOrder(maria, [
+    { teaName: "Earl Grey", grams: 200 },
+  ]);
+  console.log("Maria's Order:\n", order2.getSummary());
+} catch (err) {
+  console.log("Order 2 failed:", err.message);
+}
+
+// ----------------------
+// REPORT
+// ----------------------
 
 const report = shop.getReport();
+
 console.log("\n--- Tea Shop Report ---");
 console.log("Total customers:", report.totalCustomers);
 console.log("Total orders:", report.totalOrders);
 console.log("Total revenue:", report.totalRevenue.toFixed(2), "DKK");
+
 console.log("Low stock items (<50g):");
 report.lowStockItems.forEach((item) => {
   console.log(`- ${item.tea.name}: ${item.stockCount}g`);
