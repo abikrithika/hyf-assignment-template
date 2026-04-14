@@ -4,15 +4,16 @@ import { Order, OrderItem } from "./exercise2.js";
 
 export class Customer {
   constructor(name, email) {
-    if (!name || typeof name !== "string") {
+    if (!name || typeof name !== "string" || name.trim() === "") {
       throw new Error("Name is required");
     }
-    if (!email || typeof email !== "string") {
+
+    if (!email || typeof email !== "string" || email.trim() === "") {
       throw new Error("Email is required");
     }
 
-    this.name = name;
-    this.email = email;
+    this.name = name.trim();
+    this.email = email.trim();
     this.orders = [];
   }
 
@@ -35,13 +36,17 @@ export class Customer {
     const lines = [];
 
     lines.push(
-      `${this.name} (${this.email}) - ${this.orders.length} order${this.orders.length !== 1 ? "s" : ""}`,
+      `${this.name} (${this.email}) - ${this.orders.length} order${
+        this.orders.length !== 1 ? "s" : ""
+      }`,
     );
     lines.push("");
 
     this.orders.forEach((order, index) => {
       lines.push(
-        `Order ${index + 1} (${order.status}) - ${order.items.length} item${order.items.length !== 1 ? "s" : ""}`,
+        `Order ${index + 1} (${order.status}) - ${
+          order.items.length
+        } item${order.items.length !== 1 ? "s" : ""}`,
       );
 
       order.items.forEach((item) => {
@@ -58,17 +63,21 @@ export class Customer {
   }
 }
 
-const teaInstances = teas.map(Tea.fromObject);
+const RUN_TESTS = true;
 
-const customer = new Customer("Alex", "alex@example.com");
+if (RUN_TESTS) {
+  const teaInstances = teas.map(Tea.fromObject);
 
-const order1 = new Order();
-order1.addItem(new OrderItem(teaInstances[0], 100));
-customer.placeOrder(order1);
+  const customer = new Customer("Alex", "alex@example.com");
 
-const order2 = new Order();
-order2.addItem(new OrderItem(teaInstances[7], 50));
-customer.placeOrder(order2);
+  const order1 = new Order();
+  order1.addItem(new OrderItem(teaInstances[0], 100));
+  customer.placeOrder(order1);
 
-console.log(customer.getOrderHistory());
-console.log("Total spent:", customer.totalSpent().toFixed(2), "DKK");
+  const order2 = new Order();
+  order2.addItem(new OrderItem(teaInstances[7], 50));
+  customer.placeOrder(order2);
+
+  console.log(customer.getOrderHistory());
+  console.log("Total spent:", customer.totalSpent().toFixed(2), "DKK");
+}
