@@ -2,7 +2,7 @@ import { teas } from "./teas.js";
 
 export class Tea {
   constructor(name, type, origin, pricePerGram, organic) {
-    if (!name || typeof name !== "string") {
+    if (!name || typeof name !== "string" || name.trim() === "") {
       throw new Error("Name is required");
     }
 
@@ -15,7 +15,7 @@ export class Tea {
       throw new Error("Price per gram must be a positive number");
     }
 
-    this.name = name;
+    this.name = name.trim();
     this.type = type;
     this.origin = origin;
     this.pricePerGram = pricePerGram;
@@ -44,20 +44,23 @@ export class Tea {
   }
 }
 
-try {
-  new Tea("", "green", "Japan", 0.12, true);
-} catch (e) {
-  console.log(e.message);
+const RUN_TESTS = false;
+
+if (RUN_TESTS) {
+  try {
+    new Tea("", "green", "Japan", 0.12, true);
+  } catch (e) {
+    console.log(e.message);
+  }
+
+  try {
+    new Tea("Test", "purple", "Japan", 0.12, true);
+  } catch (e) {
+    console.log(e.message);
+  }
+
+  const teaInstances = teas.map(Tea.fromObject);
+  console.log(teaInstances.length);
+  console.log(teaInstances[0].describe());
+  console.log(teaInstances[1].describe());
 }
-
-try {
-  new Tea("Test", "purple", "Japan", 0.12, true);
-} catch (e) {
-  console.log(e.message);
-}
-
-const teaInstances = teas.map(Tea.fromObject);
-console.log(teaInstances.length);
-console.log(teaInstances[0].describe());
-
-console.log(teaInstances[1].describe());
