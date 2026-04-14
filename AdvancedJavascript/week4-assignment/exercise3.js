@@ -7,25 +7,40 @@ export class Inventory {
   }
 
   add(tea, stockCount) {
+    if (typeof stockCount !== "number" || stockCount < 0) {
+      throw new Error("Stock count must be a non-negative number");
+    }
+
     this.items.set(tea.name, { tea, stockCount });
   }
 
   sell(teaName, grams) {
+    if (typeof grams !== "number" || grams <= 0) {
+      throw new Error("Grams must be a positive number");
+    }
+
     const item = this.items.get(teaName);
     if (!item) {
       throw new Error(`Tea not found: ${teaName}`);
     }
+
     if (item.stockCount < grams) {
       throw new Error(`Not enough stock for ${teaName}`);
     }
+
     item.stockCount -= grams;
   }
 
   restock(teaName, grams) {
+    if (typeof grams !== "number" || grams <= 0) {
+      throw new Error("Grams must be a positive number");
+    }
+
     const item = this.items.get(teaName);
     if (!item) {
       throw new Error(`Tea not found: ${teaName}`);
     }
+
     item.stockCount += grams;
   }
 
@@ -48,25 +63,35 @@ export class Inventory {
   }
 }
 
-const teaInstances = teas.map(Tea.fromObject);
-const inventory = new Inventory();
+const RUN_TESTS = true;
 
-teaInstances.forEach((tea) => {
-  const data = teas.find((t) => t.name === tea.name);
-  inventory.add(tea, data.stockCount);
-});
+if (RUN_TESTS) {
+  const teaInstances = teas.map(Tea.fromObject);
+  const inventory = new Inventory();
 
-console.log("Sencha stock:", inventory.getStock("Sencha"));
+  teaInstances.forEach((tea) => {
+    const data = teas.find((t) => t.name === tea.name);
 
-inventory.sell("Sencha", 50);
-console.log("After selling 50g:", inventory.getStock("Sencha"));
-console.log("Low stock (< 50):");
-inventory.getLowStock(50).forEach((item) => {
-  console.log(`- ${item.tea.name}: ${item.stockCount}g`);
-});
+    if (!data) {
+      throw new Error(`Missing stock data for ${tea.name}`);
+    }
 
-console.log(
-  "Total inventory value:",
-  inventory.getTotalValue().toFixed(2),
-  "DKK",
-);
+    inventory.add(tea, data.stockCount);
+  });
+
+  console.log("Sencha stock:", inventory.getStock("Sencha"));
+
+  inventory.sell("Sencha", 50);
+  console.log("After selling 50g:", inventory.getStock("Sencha"));
+
+  console.log("Low stock (< 50):");
+  inventory.getLowStock(50).forEach((item) => {
+    console.log(`- ${item.tea.name}: ${item.stockCount}g`);
+  });
+
+  console.log(
+    "Total inventory value:",
+    inventory.getTotalValue().toFixed(2),
+    "DKK",
+  );
+}
