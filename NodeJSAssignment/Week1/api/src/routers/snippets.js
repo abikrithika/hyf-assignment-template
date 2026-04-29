@@ -10,6 +10,51 @@ router.get("/", (req, res) => {
   res.json(snippets);
 });
 
+router.get("/search", (req, res) => {
+  const { q } = req.query;
+
+  if (!q) {
+    return res.json(snippets);
+  }
+
+  const result = snippets.filter(
+    (s) =>
+      s.title.toLowerCase().includes(q.toLowerCase()) ||
+      s.contents.toLowerCase().includes(q.toLowerCase()),
+  );
+
+  res.json(result);
+});
+
+router.post("/search", (req, res) => {
+  const { q } = req.query;
+  const { fields } = req.body;
+
+  if (q && fields) {
+    return res.status(400).json({
+      error: "Cannot use both q and fields",
+    });
+  }
+
+  if (q) {
+    const result = snippets.filter(
+      (s) =>
+        s.title.toLowerCase().includes(q.toLowerCase()) ||
+        s.contents.toLowerCase().includes(q.toLowerCase()),
+    );
+    return res.json(result);
+  }
+
+  if (fields) {
+    if (fields.tags) {
+      const result = snippets.filter((s) => s.tags.includes(fields.tags));
+      return res.json(result);
+    }
+  }
+
+  res.json(snippets);
+});
+
 router.get("/:id", (req, res) => {
   const snippet = snippets.find((s) => s.id === Number(req.params.id));
 
@@ -21,7 +66,7 @@ router.get("/:id", (req, res) => {
 });
 
 router.post("/", (req, res) => {
-  const { title, contents } = req.body;
+  const { title, contents, tags = [] } = req.body;
 
   if (!title || !contents) {
     return res.status(400).json({ error: "Missing fields" });
@@ -31,7 +76,7 @@ router.post("/", (req, res) => {
     id: idCounter++,
     title,
     contents,
-    tags: [],
+    tags,
   };
 
   snippets.push(newSnippet);
