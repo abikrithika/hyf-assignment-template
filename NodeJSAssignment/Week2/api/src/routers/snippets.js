@@ -9,6 +9,11 @@ const snippetCreateSchema = z.object({
   contents: z.string().min(6),
 });
 
+const snippetUpdateSchema = z.object({
+  title: z.string().min(2),
+  contents: z.string().min(6),
+});
+
 router.get("/", async (req, res) => {
   try {
     const data = await knex("snippets");
@@ -145,11 +150,15 @@ router.put("/:id", async (req, res) => {
     return res.status(400).json({ error: "Invalid ID" });
   }
 
-  const { title, contents } = req.body;
+  const result = snippetUpdateSchema.safeParse(req.body);
 
-  if (!title || !contents) {
-    return res.status(400).json({ error: "Missing fields" });
+  if (!result.success) {
+    return res.status(400).json({
+      error: result.error.errors,
+    });
   }
+
+  const { title, contents } = result.data;
 
   const updated = await knex("snippets")
     .where({ id })
