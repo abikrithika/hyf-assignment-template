@@ -87,6 +87,15 @@ router.get("/filter", async (req, res) => {
   }
 });
 
+router.get("/public", async (req, res) => {
+  try {
+    const data = await knex("snippets").where({ is_private: 0 });
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   const id = Number(req.params.id);
 
