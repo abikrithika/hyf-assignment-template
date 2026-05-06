@@ -6,8 +6,7 @@ export default router;
 import z from "zod";
 const snippetCreateSchema = z.object({
   title: z.string().min(2),
-  content: z.string().min(6),
-  user_id: z.string().min(1),
+  contents: z.string().min(6),
 });
 
 router.get("/", async (req, res) => {
@@ -113,23 +112,28 @@ router.get("/:id", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  const { title, contents, tags = "" } = req.body;
+  const result = snippetCreateSchema.safeParse(req.body);
 
-  if (!title || !contents) {
-    return res.status(400).json({ error: "Missing fields" });
+  if (!result.success) {
+    return res.status(400).json({
+      error: result.error.errors,
+    });
   }
+
+  const { title, contents } = result.data;
 
   try {
     const [id] = await knex("snippets").insert({
       title,
       contents,
-      tags: JSON.stringify(tags),
+      tags: "",
     });
 
     const newSnippet = await knex("snippets").where({ id }).first();
 
     res.status(201).json(newSnippet);
   } catch (err) {
+    console.error(err);
     res.status(500).json({ error: "Internal server error" });
   }
 });
