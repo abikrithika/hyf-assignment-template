@@ -1,0 +1,122 @@
+openapi: 3.0.0
+info:
+  title: Snippets API
+  version: 1.0.0
+
+paths:
+  /api/snippets:
+    get:
+      summary: Get all snippets
+      responses:
+        "200":
+          description: Success
+
+    post:
+      summary: Create a snippet
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - title
+                - contents
+              properties:
+                title:
+                  type: string
+                contents:
+                  type: string
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Validation error
+
+  /api/snippets/{id}:
+    get:
+      summary: Get snippet by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Success
+        "404":
+          description: Not found
+
+    put:
+      summary: Update snippet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated
+        "400":
+          description: Validation error
+
+    delete:
+      summary: Delete snippet
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Deleted
+        "404":
+          description: Not found
+
+  /api/snippets/search:
+    get:
+      summary: Search snippets
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+
+  /api/snippets/sort:
+    get:
+      summary: Sort snippets
+      parameters:
+        - name: sort
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+        "400":
+          description: Invalid sort
+
+  /api/snippets/filter:
+    get:
+      summary: Filter by tag
+      parameters:
+        - name: tag
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Success
+
+  /api/snippets/public:
+    get:
+      summary: Get public snippets
+      responses:
+        "200":
+          description: Success
