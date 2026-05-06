@@ -1,5 +1,5 @@
 import express from "express";
-import knex from "../db.js";
+import knex from "../../../db.js";
 const router = express.Router();
 
 export default router;
@@ -62,6 +62,22 @@ router.post("/search", (req, res) => {
   }
 
   res.json(snippets);
+});
+router.get("/sort", async (req, res) => {
+  let query = knex("snippets");
+
+  if (req.query.sort) {
+    query = query.orderByRaw(req.query.sort);
+  }
+
+  console.log("SQL:", query.toSQL().sql);
+
+  try {
+    const data = await query;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.get("/:id", async (req, res) => {
