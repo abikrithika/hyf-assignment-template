@@ -63,14 +63,28 @@ router.post("/search", (req, res) => {
 
   res.json(snippets);
 });
+
 router.get("/sort", async (req, res) => {
   let query = knex("snippets");
 
+  const allowedColumns = ["title", "created_at"];
+  const allowedDirections = ["asc", "desc"];
+
   if (req.query.sort) {
-    query = query.orderByRaw(req.query.sort);
+    const [column, direction = "asc"] = req.query.sort.split(" ");
+
+    if (!allowedColumns.includes(column)) {
+      return res.status(400).json({ error: "Invalid column" });
+    }
+
+    if (!allowedDirections.includes(direction.toLowerCase())) {
+      return res.status(400).json({ error: "Invalid direction" });
+    }
+
+    query = query.orderBy(column, direction);
   }
 
-  console.log("SQL:", query.toSQL().sql);
+  console.log("SAFE SQL:", query.toSQL().sql);
 
   try {
     const data = await query;
