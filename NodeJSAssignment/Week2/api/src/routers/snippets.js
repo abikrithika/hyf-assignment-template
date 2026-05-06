@@ -70,6 +70,23 @@ router.get("/sort", async (req, res) => {
   }
 });
 
+router.get("/filter", async (req, res) => {
+  const { tag } = req.query;
+
+  try {
+    let query = knex("snippets");
+
+    if (tag) {
+      query = query.where("tags", "like", `%${tag}%`);
+    }
+
+    const data = await query;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Server error" });
+  }
+});
+
 router.get("/:id", async (req, res) => {
   const id = Number(req.params.id);
 
