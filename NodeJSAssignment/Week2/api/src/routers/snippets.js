@@ -19,49 +19,25 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.get("/search", (req, res) => {
+router.get("/search", async (req, res) => {
   const { q } = req.query;
 
-  if (!q) {
-    return res.json(snippets);
-  }
+  try {
+    let query = knex("snippets");
 
-  const result = snippets.filter(
-    (s) =>
-      s.title.toLowerCase().includes(q.toLowerCase()) ||
-      s.contents.toLowerCase().includes(q.toLowerCase()),
-  );
-
-  res.json(result);
-});
-
-router.post("/search", (req, res) => {
-  const { q } = req.query;
-  const { fields } = req.body;
-
-  if (q && fields) {
-    return res.status(400).json({
-      error: "Cannot use both q and fields",
-    });
-  }
-
-  if (q) {
-    const result = snippets.filter(
-      (s) =>
-        s.title.toLowerCase().includes(q.toLowerCase()) ||
-        s.contents.toLowerCase().includes(q.toLowerCase()),
-    );
-    return res.json(result);
-  }
-
-  if (fields) {
-    if (fields.tags) {
-      const result = snippets.filter((s) => s.tags.includes(fields.tags));
-      return res.json(result);
+    if (q) {
+      query = query.where((builder) => {
+        builder
+          .where("title", "like", `%${q}%`)
+          .orWhere("contents", "like", `%${q}%`);
+      });
     }
-  }
 
-  res.json(snippets);
+    const data = await query;
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: "Internal server error" });
+  }
 });
 
 router.get("/sort", async (req, res) => {
