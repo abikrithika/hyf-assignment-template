@@ -4,6 +4,9 @@ import express from "express";
 import snippetsRouter from "./api/src/routers/snippets.js";
 import tagsRouter from "./api/src/routers/tags.js";
 import authRouter from "./api/src/routers/auth.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import knex from "./db.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
