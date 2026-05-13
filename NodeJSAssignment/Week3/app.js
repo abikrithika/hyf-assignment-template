@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import express from "express";
 import snippetsRouter from "./api/src/routers/snippets.js";
 import tagsRouter from "./api/src/routers/tags.js";
