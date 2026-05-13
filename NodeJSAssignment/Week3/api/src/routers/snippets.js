@@ -1,5 +1,7 @@
 import express from "express";
 import knex from "../../../db.js";
+import authJwt from "../middleware/authJwt.js";
+
 const router = express.Router();
 
 export default router;
@@ -116,7 +118,7 @@ router.get("/:id", async (req, res) => {
   res.json(snippet);
 });
 
-router.post("/", async (req, res) => {
+router.post("/", authJwt, async (req, res) => {
   const result = snippetCreateSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -171,7 +173,7 @@ router.put("/:id", async (req, res) => {
   res.json({ message: "Updated" });
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", authJwt, async (req, res) => {
   const id = Number(req.params.id);
 
   const deleted = await knex("snippets").where({ id }).del();
