@@ -1,23 +1,18 @@
+import bcrypt from "bcrypt";
 import knex from "./db.js";
 
-async function setupUsers() {
-  const exists = await knex.schema.hasTable("users");
+async function seed() {
+  const hashedPassword = await bcrypt.hash("password123", 10);
 
-  if (!exists) {
-    await knex.schema.createTable("users", (table) => {
-      table.increments("id").primary();
-      table.string("email").unique().notNullable();
-      table.string("password").notNullable();
-      table.string("role").defaultTo("user");
-      table.timestamps(true, true);
-    });
+  await knex("users").insert({
+    email: "admin@example.com",
+    password: hashedPassword,
+    role: "admin",
+  });
 
-    console.log("Users table created");
-  } else {
-    console.log("Users table already exists");
-  }
+  console.log("User created");
 
   process.exit();
 }
 
-setupUsers();
+seed();
