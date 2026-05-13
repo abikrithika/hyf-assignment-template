@@ -2,6 +2,7 @@ import express from "express";
 import knex from "../../../db.js";
 import authJwt from "../middleware/authJwt.js";
 import authToken from "../middleware/authToken.js";
+import requireAdmin from "../middleware/requireAdmin.js";
 import z from "zod";
 
 const router = express.Router();
@@ -266,9 +267,9 @@ router.put("/:id", async (req, res) => {
 
 // -----------------------------
 // DELETE SNIPPET
-// Protected using DB Token Auth
+// Admin only using JWT Auth
 // -----------------------------
-router.delete("/:id", authToken, async (req, res) => {
+router.delete("/:id", authJwt, requireAdmin, async (req, res) => {
   const id = Number(req.params.id);
 
   if (isNaN(id)) {
