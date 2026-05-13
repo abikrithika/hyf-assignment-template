@@ -15,3 +15,10 @@ async function setup() {
 }
 
 setup();
+
+await knex.schema.createTable("users", (table) => {
+  table.increments("id").primary();
+  table.string("email").unique();
+  table.string("password");
+  table.string("role").defaultTo("user");
+});
