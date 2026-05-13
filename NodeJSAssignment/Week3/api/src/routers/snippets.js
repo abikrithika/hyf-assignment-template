@@ -1,11 +1,16 @@
 import express from "express";
 import knex from "../../../db.js";
 import authJwt from "../middleware/authJwt.js";
+import authToken from "../middleware/authToken.js";
+import z from "zod";
 
 const router = express.Router();
 
 export default router;
-import z from "zod";
+
+// -----------------------------
+// Zod Schemas
+// -----------------------------
 const snippetCreateSchema = z.object({
   title: z.string().min(2),
   contents: z.string().min(6),
@@ -16,15 +21,26 @@ const snippetUpdateSchema = z.object({
   contents: z.string().min(6),
 });
 
+// -----------------------------
+// GET ALL SNIPPETS
+// -----------------------------
 router.get("/", async (req, res) => {
   try {
     const data = await knex("snippets");
+
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
+    console.error(err);
+
+    res.status(500).json({
+      error: "Internal server error",
+    });
   }
 });
 
+// -----------------------------
+// SEARCH SNIPPETS
+// -----------------------------
 router.get("/search", async (req, res) => {
   const { q } = req.query;
 
@@ -40,12 +56,20 @@ router.get("/search", async (req, res) => {
     }
 
     const data = await query;
+
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
+    console.error(err);
+
+    res.status(500).json({
+      error: "Internal server error",
+    });
   }
 });
 
+// -----------------------------
+// SORT SNIPPETS (SAFE)
+// -----------------------------
 router.get("/sort", async (req, res) => {
   let query = knex("snippets");
 
@@ -56,11 +80,15 @@ router.get("/sort", async (req, res) => {
     const [column, direction = "asc"] = req.query.sort.split(" ");
 
     if (!allowedColumns.includes(column)) {
-      return res.status(400).json({ error: "Invalid column" });
+      return res.status(400).json({
+        error: "Invalid column",
+      });
     }
 
     if (!allowedDirections.includes(direction.toLowerCase())) {
-      return res.status(400).json({ error: "Invalid direction" });
+      return res.status(400).json({
+        error: "Invalid direction",
+      });
     }
 
     query = query.orderBy(column, direction);
@@ -70,12 +98,20 @@ router.get("/sort", async (req, res) => {
 
   try {
     const data = await query;
+
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: "Internal server error" });
+    console.error(err);
+
+    res.status(500).json({
+      error: "Internal server error",
+    });
   }
 });
 
+// -----------------------------
+// FILTER BY TAG
+// -----------------------------
 router.get("/filter", async (req, res) => {
   const { tag } = req.query;
 
@@ -87,38 +123,72 @@ router.get("/filter", async (req, res) => {
     }
 
     const data = await query;
+
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error(err);
+
+    res.status(500).json({
+      error: "Server error",
+    });
   }
 });
 
+// -----------------------------
+// PUBLIC SNIPPETS
+// -----------------------------
 router.get("/public", async (req, res) => {
   try {
-    const data = await knex("snippets").where({ is_private: 0 });
+    const data = await knex("snippets").where({
+      is_private: 0,
+    });
+
     res.json(data);
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error(err);
+
+    res.status(500).json({
+      error: "Server error",
+    });
   }
 });
 
+// -----------------------------
+// GET SNIPPET BY ID
+// -----------------------------
 router.get("/:id", async (req, res) => {
   const id = Number(req.params.id);
 
   if (isNaN(id)) {
-    return res.status(400).json({ error: "Invalid ID" });
+    return res.status(400).json({
+      error: "Invalid ID",
+    });
   }
 
-  const snippet = await knex("snippets").where({ id }).first();
+  try {
+    const snippet = await knex("snippets").where({ id }).first();
 
-  if (!snippet) {
-    return res.status(404).json({ error: "Snippet not found" });
+    if (!snippet) {
+      return res.status(404).json({
+        error: "Snippet not found",
+      });
+    }
+
+    res.json(snippet);
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Internal server error",
+    });
   }
-
-  res.json(snippet);
 });
 
-router.post("/", authJwt, async (req, res) => {
+// -----------------------------
+// CREATE SNIPPET
+// Protected using DB Token Auth
+// -----------------------------
+router.post("/", authToken, async (req, res) => {
   const result = snippetCreateSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -141,15 +211,23 @@ router.post("/", authJwt, async (req, res) => {
     res.status(201).json(newSnippet);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal server error" });
+
+    res.status(500).json({
+      error: "Internal server error",
+    });
   }
 });
 
+// -----------------------------
+// UPDATE SNIPPET
+// -----------------------------
 router.put("/:id", async (req, res) => {
   const id = Number(req.params.id);
 
   if (isNaN(id)) {
-    return res.status(400).json({ error: "Invalid ID" });
+    return res.status(400).json({
+      error: "Invalid ID",
+    });
   }
 
   const result = snippetUpdateSchema.safeParse(req.body);
@@ -162,25 +240,60 @@ router.put("/:id", async (req, res) => {
 
   const { title, contents } = result.data;
 
-  const updated = await knex("snippets")
-    .where({ id })
-    .update({ title, contents });
+  try {
+    const updated = await knex("snippets").where({ id }).update({
+      title,
+      contents,
+    });
 
-  if (!updated) {
-    return res.status(404).json({ error: "Snippet not found" });
+    if (!updated) {
+      return res.status(404).json({
+        error: "Snippet not found",
+      });
+    }
+
+    res.json({
+      message: "Updated",
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Internal server error",
+    });
   }
-
-  res.json({ message: "Updated" });
 });
 
-router.delete("/:id", authJwt, async (req, res) => {
+// -----------------------------
+// DELETE SNIPPET
+// Protected using DB Token Auth
+// -----------------------------
+router.delete("/:id", authToken, async (req, res) => {
   const id = Number(req.params.id);
 
-  const deleted = await knex("snippets").where({ id }).del();
-
-  if (!deleted) {
-    return res.status(404).json({ error: "Snippet not found" });
+  if (isNaN(id)) {
+    return res.status(400).json({
+      error: "Invalid ID",
+    });
   }
 
-  res.json({ message: "Deleted snippet" });
+  try {
+    const deleted = await knex("snippets").where({ id }).del();
+
+    if (!deleted) {
+      return res.status(404).json({
+        error: "Snippet not found",
+      });
+    }
+
+    res.json({
+      message: "Deleted snippet",
+    });
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      error: "Internal server error",
+    });
+  }
 });
